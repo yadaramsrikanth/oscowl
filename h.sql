@@ -1,0 +1,1 @@
+create TABLE user(id int PRIMARY KEY, username text,password text);
