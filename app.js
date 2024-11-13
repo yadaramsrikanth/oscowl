@@ -9,7 +9,7 @@ app.use(express.json())
 const jwt = require('jsonwebtoken')
 const cors=require("cors")
 
-app.use(cors())
+app.use(cors({origin:"*"}))
 const Port=3006
 const saltRounds=10
 let db = null
