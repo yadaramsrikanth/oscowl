@@ -33,7 +33,7 @@ initializeDBAndServer()
 //User Registration
 
 app.post('/register', async (request, response) => {
-  const {id,username, password} = request.body
+  const {username, password} = request.body
   const hashedPassword = await bcrypt.hash(password, saltRounds)
   const selectUserQuery = `select * from user where username="${username}"`
   const dbuser = await db.get(selectUserQuery)
@@ -46,10 +46,10 @@ app.post('/register', async (request, response) => {
 
     await db.run(createUserQuery)
     response.status(201)
-    response.send('User Registered SuccessFully')
+    response.send({user:'User Registered SuccessFully'})
   } else {
     response.status(400)
-    response.send('User Already Exists!!')
+    response.send({user:'User Already Exists!!'})
   }
 })
 
@@ -59,7 +59,7 @@ app.post('/login', async (request, response) => {
     const dbuser = await db.get(selectUserQuery)
     if (dbuser === undefined) {
       response.status(400)
-      response.send('Invalid User')
+      response.send({user:'Invalid User'})
     } else {
       const isPasswordMatched = await bcrypt.compare(password, dbuser.password)
       //console.log(isPasswordMatched)
@@ -70,7 +70,7 @@ app.post('/login', async (request, response) => {
         response.send({jwtToken})
       } else {
         response.status(400)
-        response.send('Invalid Password')
+        response.send({user:'Invalid Password'})
       }
     }
   })
@@ -84,12 +84,12 @@ const authentication = (request, response, next) => {
     }
     if (jwtToken === undefined) {
       response.status(400)
-      response.send('Token not provided, please login and after that access the content')
+      response.send({user:'Token not provided, please login and after that access the content'})
     } else {
       jwt.verify(jwtToken, 'TOKEN', async (error, payload) => {
         if (error) {
           response.status(400)
-          response.send('Token not provided, please login and after that access the content')
+          response.send({user:'Token not provided, please login and after that access the content'})
         } else {
           next()
         }
@@ -114,7 +114,7 @@ app.post('/todos',authentication,async (request, response) => {
     VALUES
     ("${name}","${status}");`
     await db.run(createProduct)
-    response.send('Todo Added Successfully')
+    response.send({todo:'Todo Added Successfully'})
   })
   
   app.put('/todos/:todoid',authentication,async (request, response) => {
@@ -130,7 +130,7 @@ app.post('/todos',authentication,async (request, response) => {
     ;`
   
     await db.run(updateProductQuery)
-    response.send('Todo Updated SuccessFully')
+    response.send({todo:'Todo Updated SuccessFully'})
   })
 
   //DELETE
@@ -139,5 +139,5 @@ app.post('/todos',authentication,async (request, response) => {
     const {todoid} = request.params
     const deleteQuery = `DELETE FROM todo_items where id=${todoid}`
     await db.run(deleteQuery)
-    response.send('Todo Deleted Successfully')
+    response.send({todo:'Todo Deleted Successfully'})
   })
